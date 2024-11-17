@@ -3,15 +3,14 @@ import 'dart:ui';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/svg_widget.dart';
 import 'package:finchain_frontend/screens/bottom_navbar.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
-import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 
-void showTransactionFailedModal(
-  BuildContext context,
-  User user,
-  String errorMsg,
-) {
+void showDefaultFundModal({
+  required BuildContext context,
+  required User user,
+}) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -20,25 +19,51 @@ void showTransactionFailedModal(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Dialog(
           backgroundColor: Colors.transparent,
-          child: TransactionFailedModal(
-            user: user,
-            errorMsg: errorMsg,
-          ),
+          child: DefaultFundModal(user: user),
         ),
       );
     },
   );
 }
 
-class TransactionFailedModal extends StatelessWidget {
+class DefaultFundModal extends StatefulWidget {
   final User user;
-  final String errorMsg;
 
-  const TransactionFailedModal({
+  const DefaultFundModal({
     super.key,
     required this.user,
-    required this.errorMsg,
   });
+
+  @override
+  State<DefaultFundModal> createState() => _DefaultFundModalState();
+}
+
+class _DefaultFundModalState extends State<DefaultFundModal> {
+  ApiService apiService = ApiService();
+
+  bool _isLoading = false;
+  bool? _isSuccess;
+
+  Future<void> _getDefaultFund() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await apiService.fundAccount(widget.user.contact);
+      setState(() {
+        _isSuccess = true;
+      });
+    } catch (e) {
+      setState(() {
+        _isSuccess = false;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +85,7 @@ class TransactionFailedModal extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -89,7 +114,11 @@ class TransactionFailedModal extends StatelessWidget {
                   ),
                   SizedBox(height: heightFactor * 4),
                   Text(
-                    "Transaction Failed",
+                    _isSuccess == null
+                        ? "Confirm Fund"
+                        : _isSuccess!
+                            ? "Transaction Successful"
+                            : "Transaction Failed",
                     style: TextStyle(
                       fontSize: heightFactor * 16,
                       fontWeight: FontWeight.w600,
@@ -99,35 +128,51 @@ class TransactionFailedModal extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgWidget(
-                    imageUrl: "assets/icons/fail.svg",
-                    width: heightFactor * 83,
-                    height: heightFactor * 83,
-                  )
-                ],
-              ),
-              SizedBox(height: heightFactor * 8),
-              buildTimeTextBox(
-                "Error",
-                errorMsg,
-                theme,
-                heightFactor,
-              ),
-              SizedBox(height: heightFactor * 10),
+              if (_isLoading)
+                Center(
+                  child: CircularProgressIndicator(color: theme.primaryColor),
+                )
+              else if (_isSuccess == null)
+                ElevatedButton(
+                  onPressed: _getDefaultFund,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: theme.primaryColor,
+                      ),
+                      const SizedBox(width: 5),
+                      const Text("Confirm Fund"),
+                    ],
+                  ),
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgWidget(
+                      imageUrl: _isSuccess!
+                          ? "assets/icons/success.svg"
+                          : "assets/icons/fail.svg",
+                      width: heightFactor * 83,
+                      height: heightFactor * 83,
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: heightFactor * 25),
         ElevatedButton(
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => BottomNavBar(user: user),
+                builder: (context) => BottomNavBar(user: widget.user),
               ),
               (Route<dynamic> route) => false,
             );
@@ -138,7 +183,7 @@ class TransactionFailedModal extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                FluentSystemIcons.ic_fluent_home_filled,
+                Icons.home,
                 color: theme.primaryColor,
               ),
               const SizedBox(width: 5),
@@ -147,39 +192,6 @@ class TransactionFailedModal extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget buildTimeTextBox(
-    String label,
-    String value,
-    ThemeData theme,
-    double heightFactor,
-  ) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: heightFactor * 4.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: heightFactor * 14,
-              fontWeight: FontWeight.w600,
-              color: theme.secondaryHeaderColor,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: heightFactor * 17,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

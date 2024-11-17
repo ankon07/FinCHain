@@ -1,4 +1,6 @@
 import 'package:finchain_frontend/models/User/user.dart';
+import 'package:finchain_frontend/screens/Transaction-History/transaction_history.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +15,8 @@ class TopHome extends StatefulWidget {
 
 class _TopHomeState extends State<TopHome> {
   ThemeData theme = AppTheme.getTheme();
+  ApiService apiService = ApiService();
+  String _balance = "0.00";
   bool isBalanceShowing = false;
   double _balanceOpacity = 0.0;
   bool isHistoryShowing = false;
@@ -21,12 +25,20 @@ class _TopHomeState extends State<TopHome> {
   void initState() {
     super.initState();
     isBalanceShowing = false;
+    getBalance();
     fetchImageUrl();
   }
 
   Future<void> fetchImageUrl() async {}
 
   Future<void> _logout() async {}
+
+  Future<void> getBalance() async {
+    String balance = await apiService.fetchBalance();
+    setState(() {
+      _balance = balance;
+    });
+  }
 
   void _toggleBalanceVisibility() {
     if (isBalanceShowing) {
@@ -91,6 +103,7 @@ class _TopHomeState extends State<TopHome> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
@@ -117,31 +130,32 @@ class _TopHomeState extends State<TopHome> {
                             ),
                           ),
                         ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: widthFactor * 86.57,
-                          decoration: BoxDecoration(
-                            color: isHistoryShowing
-                                ? theme.primaryColor
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(heightFactor * 25)),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isHistoryShowing = !isHistoryShowing;
-                              });
-                            },
-                            icon: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TransactionHistory(user: widget.user),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: widthFactor * 86.57,
+                            padding: EdgeInsets.symmetric(
+                              vertical: heightFactor * 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(heightFactor * 25),
+                              ),
+                            ),
+                            child: Center(
                               child: Icon(
                                 Icons.history,
-                                key: ValueKey<bool>(isHistoryShowing),
                                 size: widthFactor * 33,
-                                color: isHistoryShowing
-                                    ? Colors.white
-                                    : theme.primaryColor,
+                                color: theme.primaryColor,
                               ),
                             ),
                           ),
@@ -159,12 +173,9 @@ class _TopHomeState extends State<TopHome> {
                         width: 4.0,
                       ),
                     ),
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(widget.user.imageUrl),
-                      onBackgroundImageError: (exception, stackTrace) {
-                        print('Error loading image: $exception');
-                      },
+                      child: Icon(Icons.person),
                     ),
                   ),
                 ],
@@ -206,7 +217,7 @@ class _TopHomeState extends State<TopHome> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              "\$ 25,000",
+                              "\$ $_balance",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: widthFactor * 24,

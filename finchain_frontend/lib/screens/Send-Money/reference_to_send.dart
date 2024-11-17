@@ -1,11 +1,16 @@
+import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
-import 'package:finchain_frontend/screens/Send-Money/pin_to_send.dart';
+// import 'package:finchain_frontend/screens/Send-Money/pin_to_send.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
+import 'package:finchain_frontend/screens/Send-Money/transaction_failed_modal.dart';
+import 'package:finchain_frontend/screens/Send-Money/transaction_success_modal.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class ReferenceToSend extends StatefulWidget {
+  final User user;
   final Contact contact;
   final double amount;
 
@@ -13,6 +18,7 @@ class ReferenceToSend extends StatefulWidget {
     super.key,
     required this.contact,
     required this.amount,
+    required this.user,
   });
 
   @override
@@ -22,6 +28,7 @@ class ReferenceToSend extends StatefulWidget {
 class _ReferenceToSendState extends State<ReferenceToSend> {
   String _reference = "";
   final TextEditingController _referenceController = TextEditingController();
+  ApiService apiService = ApiService();
 
   void _onReferenceChanged(String value) {
     setState(() {
@@ -29,17 +36,30 @@ class _ReferenceToSendState extends State<ReferenceToSend> {
     });
   }
 
-  void _navigateToNextScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PinToSend(
-          contact: widget.contact,
-          amount: widget.amount,
-          reference: _reference,
-        ),
-      ),
-    );
+  void _showTransactionStatusModal(BuildContext context) async {
+    try {
+      final fee = await apiService.sendPayment(
+        widget.contact.number,
+        widget.amount.toString(),
+        _referenceController.text,
+      );
+
+      showTransactionSuccessModal(
+        context: context,
+        user: widget.user,
+        contact: widget.contact,
+        amount: widget.amount,
+        fee: double.parse(fee),
+        reference: _referenceController.text,
+        currentTimestamp: DateTime.now(),
+      );
+    } catch (e) {
+      showTransactionFailedModal(
+        context,
+        widget.user,
+        "Failed to transact!",
+      );
+    }
   }
 
   @override
@@ -234,7 +254,7 @@ class _ReferenceToSendState extends State<ReferenceToSend> {
                         horizontal: widthFactor * 20,
                         vertical: widthFactor * 20),
                     child: ElevatedButton(
-                      onPressed: _navigateToNextScreen,
+                      onPressed: () => _showTransactionStatusModal(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
                         padding:

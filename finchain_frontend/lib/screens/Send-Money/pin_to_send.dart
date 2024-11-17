@@ -1,3 +1,4 @@
+import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
@@ -7,6 +8,7 @@ import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class PinToSend extends StatefulWidget {
+  final User user;
   final Contact contact;
   final double amount;
   final String reference;
@@ -16,6 +18,7 @@ class PinToSend extends StatefulWidget {
     required this.contact,
     required this.amount,
     required this.reference,
+    required this.user,
   });
 
   @override
@@ -36,16 +39,19 @@ class _PinToSendState extends State<PinToSend> {
   void _showTransactionStatusModal(BuildContext context) {
     if (_pin == _actualPin) {
       showTransactionSuccessModal(
-        context,
-        widget.contact,
-        widget.amount,
-        widget.reference,
-        DateTime.now(),
+        context: context,
+        user: widget.user,
+        contact: widget.contact,
+        amount: widget.amount,
+        fee: 5.00,
+        reference: widget.reference,
+        currentTimestamp: DateTime.now(),
       );
     }
     // else if (_pin != _actualPin) {}
     else {
-      showTransactionFailedModal(context, "Server COnnection Lost. Try Again!");
+      showTransactionFailedModal(
+          context, widget.user, "Server COnnection Lost. Try Again!");
     }
   }
 

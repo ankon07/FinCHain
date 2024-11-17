@@ -127,6 +127,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 #     password = serializers.CharField(write_only=True)
 
 
+class FundAccountSerializer(serializers.Serializer):
+    mobile_number = serializers.CharField(max_length=15, required=True)
+
+    def validate_mobile_number(self, value):
+        # Ensure the mobile number is linked to a wallet
+        if not UserWallet.objects.filter(mobile_number=value).exists():
+            raise serializers.ValidationError("No wallet found for the provided mobile number.")
+        return value
 
 class UserLoginSerializer(serializers.Serializer):
     mobile_number = serializers.CharField()

@@ -1,13 +1,13 @@
 class User {
-  final String name;
-  final String email;
-  final String contact;
-  final String imageUrl;
+  String name;
+  String? email;
+  String contact;
+  String? imageUrl;
 
   User({
     required this.name,
-    required this.email,
+    this.email,
     required this.contact,
-    required this.imageUrl,
+    this.imageUrl,
   });
 }

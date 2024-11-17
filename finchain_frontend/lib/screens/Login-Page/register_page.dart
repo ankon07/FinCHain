@@ -1,29 +1,27 @@
 import 'dart:convert';
 
-import 'package:finchain_frontend/utils/api_service.dart';
-import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/logo.dart';
-import 'package:finchain_frontend/screens/bottom_navbar.dart';
-import 'package:finchain_frontend/screens/Login-Page/register_page.dart';
+import 'package:finchain_frontend/screens/Login-Page/login_page.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   ThemeData theme = AppTheme.getTheme();
-  final ApiService apiService = ApiService();
+  ApiService apiService = ApiService();
   bool isLoading = false;
 
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _pinController = TextEditingController();
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleSignUp() async {
     setState(() {
       isLoading = true;
     });
@@ -34,55 +32,56 @@ class _LoginPageState extends State<LoginPage> {
     // Input validation
     if (mobile.isEmpty || pin.isEmpty) {
       _showSnackBar('Please fill in all fields');
-      _setLoading(false);
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
     if (mobile.length != 11 || !RegExp(r'^\d+$').hasMatch(mobile)) {
       _showSnackBar('Mobile number must be 11 digits and numeric');
-      _setLoading(false);
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
     if (pin.length != 4 || !RegExp(r'^\d+$').hasMatch(pin)) {
       _showSnackBar('PIN must be 4 digits and numeric');
-      _setLoading(false);
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
     try {
-      final response = await apiService.login(mobile, pin);
+      final response = await apiService.register(mobile, pin);
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print(responseData);
-        _setLoading(false);
-        _showSnackBar('Sign in successful!');
+        _showSnackBar('Registration successful!');
+        setState(() {
+          isLoading = false;
+        });
 
+        // Navigate to Login Page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => BottomNavBar(
-              user: User(
-                contact: mobile,
-                name: "guestuser-${DateTime.now().millisecondsSinceEpoch}",
-              ),
-            ),
-          ),
+          MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       } else {
-        final responseData = json.decode(response.body);
-        String errorMessage =
-            responseData['message'] ?? 'Server error occurred';
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String errorMessage = responseData['message'] ?? 'Server Error';
         _showSnackBar('Error: $errorMessage');
-        _setLoading(false);
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
-      // Handle client-side/network errors
+      _showSnackBar('An error occurred. Please try again later.');
       debugPrint('Error: $e');
-      _showSnackBar(
-          'An error occurred. Please check your internet connection and try again.');
-      _setLoading(false);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -92,18 +91,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _setLoading(bool value) {
-    setState(() {
-      isLoading = value;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    // final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
-    // double widthFactor = screenWidth / 428;
+    final screenHeight = MediaQuery.of(context).size.height;
     double heightFactor = screenHeight / 926;
 
     return Scaffold(
@@ -120,11 +110,11 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Welcome\nBack',
+                  'Create\nAccount',
                   style: TextStyle(color: Colors.white, fontSize: 33),
                 ),
                 const Spacer(),
-                Logo(size: heightFactor * 50)
+                Logo(size: heightFactor * 50),
               ],
             ),
           ),
@@ -135,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: const EdgeInsets.only(left: 35, right: 35),
+                    margin: const EdgeInsets.symmetric(horizontal: 35),
                     child: Column(
                       children: [
                         TextField(
@@ -170,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                           maxLength: 4,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            counterText: "", // Hides max length counter
+                            counterText: "",
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(
@@ -195,18 +185,19 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'Sign In',
+                              'Sign Up',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 27,
-                                  fontWeight: FontWeight.w700),
+                                color: Colors.white,
+                                fontSize: 27,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             CircleAvatar(
                               radius: 30,
                               backgroundColor: theme.canvasColor,
                               child: IconButton(
                                 color: Colors.white,
-                                onPressed: _handleSignIn,
+                                onPressed: _handleSignUp,
                                 icon: Icon(
                                   Icons.arrow_forward,
                                   color: theme.primaryColor,
@@ -224,27 +215,18 @@ class _LoginPageState extends State<LoginPage> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const RegisterPage(),
+                                    builder: (context) => const LoginPage(),
                                   ),
                                 );
                               },
                               child: const Text(
-                                'Sign Up',
+                                'Sign In',
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Colors.white,
-                                    fontSize: 18),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                'Forgot PIN?',
-                                style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: Colors.white,
-                                    fontSize: 18),
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
                           ],

@@ -79,7 +79,7 @@ class PersonalInfo extends StatelessWidget {
                 ),
                 SizedBox(height: heightFactor * 8),
                 Text(
-                  user.email,
+                  user.email ?? "e-mail not provided yet",
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.w500,

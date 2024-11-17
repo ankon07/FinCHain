@@ -40,7 +40,7 @@ class _ContactCardState extends State<ContactCard> {
           horizontal: heightFactor * 10,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -58,26 +58,32 @@ class _ContactCardState extends State<ContactCard> {
               ),
             ),
             SizedBox(width: widthFactor * 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.contact.name,
-                  style: TextStyle(
-                    fontSize: widthFactor * 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.contact.name,
+                    style: TextStyle(
+                      fontSize: widthFactor * 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  widget.contact.number,
-                  style: TextStyle(
-                    fontSize: widthFactor * 16,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black,
+                  Text(
+                    widget.contact.number,
+                    style: TextStyle(
+                      fontSize: widthFactor * 16,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

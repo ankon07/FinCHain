@@ -2,6 +2,7 @@ import 'package:finchain_frontend/modules/finchain_appbar.dart';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/screens/Add-Money/add_money_card.dart';
 import 'package:finchain_frontend/screens/Add-Money/bank_to_finchain.dart';
+import 'package:finchain_frontend/screens/Add-Money/default_fund_modal.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -100,6 +101,14 @@ class _AddMoneyState extends State<AddMoney> {
                             ),
                           );
                         },
+                      ),
+                      AddMoneyCard(
+                        label: "Default Fund",
+                        imageUrl: "assets/icons/bank_transfer.svg",
+                        onPressed: () => showDefaultFundModal(
+                          context: context,
+                          user: widget.user,
+                        ),
                       ),
                     ],
                   ),

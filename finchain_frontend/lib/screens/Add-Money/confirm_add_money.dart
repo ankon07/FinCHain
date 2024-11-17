@@ -2,8 +2,8 @@ import 'package:finchain_frontend/models/Account/account.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
-import 'package:finchain_frontend/screens/Add-Money/otp_confirmation_am.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
+import 'package:finchain_frontend/screens/Send-Money/transaction_success_modal.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -43,19 +43,14 @@ class _ConfirmAddMoneyState extends State<ConfirmAddMoney> {
         const SnackBar(content: Text('Please provide a reference to confirm!')),
       );
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OtpConfirmationAM(
-            user: widget.user,
-            account: widget.account,
-            bankName: widget.bankName,
-            receiver: widget.receiver,
-            amount: widget.amount,
-            reference: _refController.text,
-            currentTimestamp: DateTime.now(),
-          ),
-        ),
+      showTransactionSuccessModal(
+        context: context,
+        user: widget.user,
+        contact: widget.receiver,
+        amount: widget.amount,
+        fee: 100.00,
+        reference: _refController.text,
+        currentTimestamp: DateTime.now(),
       );
     }
   }

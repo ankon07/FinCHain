@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 class OperationsPreview extends StatefulWidget {
   final User user;
+  final String balance;
 
-  const OperationsPreview({super.key, required this.user});
+  const OperationsPreview(
+      {super.key, required this.user, required this.balance});
 
   @override
   State<OperationsPreview> createState() => _OperationsPreviewState();
@@ -32,22 +34,27 @@ class _OperationsPreviewState extends State<OperationsPreview> {
               OperationCard(
                 imageUrl: "assets/icons/send_money.svg",
                 label: "Send Money",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToSendMoney(context, widget.user),
+                onTap: () => DashboardNavigation.instance.navigateToSendMoney(
+                  context: context,
+                  user: widget.user,
+                  balance: widget.balance,
+                ),
                 fontSize: 14 * widthFactor,
               ),
               OperationCard(
                 imageUrl: "assets/icons/mobile_recharge.svg",
                 label: "Mobile Recharge",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToSendMoney(context, widget.user),
+                onTap: () => {},
                 fontSize: 14 * widthFactor,
               ),
               OperationCard(
                 imageUrl: "assets/icons/cash_out.svg",
                 label: "Cash Out",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToSendMoney(context, widget.user),
+                onTap: () => DashboardNavigation.instance.navigateToCashOut(
+                  context: context,
+                  user: widget.user,
+                  balance: widget.balance,
+                ),
                 fontSize: 14 * widthFactor,
               ),
             ],
@@ -59,22 +66,26 @@ class _OperationsPreviewState extends State<OperationsPreview> {
               OperationCard(
                 imageUrl: "assets/icons/add_money.svg",
                 label: "Add Money",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToAddMoney(context, widget.user),
+                onTap: () => DashboardNavigation.instance.navigateToAddMoney(
+                  context: context,
+                  user: widget.user,
+                ),
                 fontSize: 14 * widthFactor,
               ),
               OperationCard(
                 imageUrl: "assets/icons/bank_transfer.svg",
                 label: "Bank Transfer",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToSendMoney(context, widget.user),
+                onTap: () => {},
                 fontSize: 14 * widthFactor,
               ),
               OperationCard(
                 imageUrl: "assets/icons/payment.svg",
                 label: "Payment",
-                onTap: () => DashboardNavigation.instance
-                    .navigateToSendMoney(context, widget.user),
+                onTap: () => DashboardNavigation.instance.navigateToPayment(
+                  context: context,
+                  user: widget.user,
+                  balance: widget.balance,
+                ),
                 fontSize: 14 * widthFactor,
               ),
             ],

@@ -45,14 +45,20 @@ class _OtpConfirmationAMState extends State<OtpConfirmationAM> {
   void _onConfirmButtonPressed() {
     if (_otpController.text == "1111") {
       showTransactionSuccessModal(
-        context,
-        widget.receiver,
-        widget.amount,
-        widget.reference,
-        widget.currentTimestamp,
+        context: context,
+        user: widget.user,
+        contact: widget.receiver,
+        amount: widget.amount,
+        fee: 100.00,
+        reference: widget.reference,
+        currentTimestamp: widget.currentTimestamp,
       );
     } else {
-      showTransactionFailedModal(context, "Verification Failed!");
+      showTransactionFailedModal(
+        context,
+        widget.user,
+        "Verification Failed!",
+      );
     }
   }
 

@@ -1,8 +1,12 @@
+import 'package:finchain_frontend/models/User/user.dart';
+import 'package:finchain_frontend/screens/Profile/profile_settings.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class TopPartProfile extends StatefulWidget {
-  const TopPartProfile({super.key});
+  final User user;
+
+  const TopPartProfile({super.key, required this.user});
 
   @override
   State<TopPartProfile> createState() => _TopPartProfileState();
@@ -28,16 +32,26 @@ class _TopPartProfileState extends State<TopPartProfile> {
               color: theme.primaryColor,
               padding: EdgeInsets.only(
                 right: widthFactor * 22,
-                top: widthFactor * 22,
+                top: widthFactor * 55,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                    size: widthFactor * 40,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileSettings(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      size: widthFactor * 40,
+                    ),
                   )
                 ],
               ),
@@ -68,7 +82,7 @@ class _TopPartProfileState extends State<TopPartProfile> {
                 ),
                 child: ClipOval(
                   child: Image.asset(
-                    'assets/images/user.jpg',
+                    widget.user.imageUrl!,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -76,7 +90,7 @@ class _TopPartProfileState extends State<TopPartProfile> {
             ),
             Center(
                 child: Text(
-              "Khanki Rafee",
+              widget.user.name,
               style: TextStyle(
                 fontSize: widthFactor * 24,
                 fontWeight: FontWeight.bold,

@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/svg_widget.dart';
+import 'package:finchain_frontend/screens/bottom_navbar.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
 import 'package:finchain_frontend/utils/theme.dart';
@@ -8,13 +10,15 @@ import 'package:finchain_frontend/utils/utils.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 
-void showTransactionSuccessModal(
-  BuildContext context,
-  Contact contact,
-  double amount,
-  String reference,
-  DateTime currentTimestamp,
-) {
+void showTransactionSuccessModal({
+  required BuildContext context,
+  required User user,
+  required Contact contact,
+  required double amount,
+  required double fee,
+  required String reference,
+  required DateTime currentTimestamp,
+}) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -24,8 +28,10 @@ void showTransactionSuccessModal(
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: TransactionSuccessModal(
+            user: user,
             contact: contact,
             amount: amount,
+            fee: fee,
             reference: reference,
             currentTimestamp: currentTimestamp,
           ),
@@ -36,17 +42,21 @@ void showTransactionSuccessModal(
 }
 
 class TransactionSuccessModal extends StatelessWidget {
+  final User user;
   final Contact contact;
   final double amount;
+  final double fee;
   final String reference;
   final DateTime currentTimestamp;
 
   const TransactionSuccessModal({
     super.key,
+    required this.user,
     required this.contact,
     required this.amount,
     required this.reference,
     required this.currentTimestamp,
+    required this.fee,
   });
 
   @override
@@ -154,7 +164,7 @@ class TransactionSuccessModal extends StatelessWidget {
               SizedBox(height: heightFactor * 8),
               buildTimeTextBox(
                 "Reference",
-                "Bill",
+                reference,
                 theme,
                 heightFactor,
               ),
@@ -175,7 +185,7 @@ class TransactionSuccessModal extends StatelessWidget {
                       ),
                       buildTimeTextBox(
                         "Charge",
-                        Utils.getDoubleString(0),
+                        Utils.getDoubleString(fee),
                         theme,
                         heightFactor,
                       ),
@@ -200,7 +210,7 @@ class TransactionSuccessModal extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        Utils.getDoubleString(amount),
+                        Utils.getDoubleString(amount + fee),
                         style: TextStyle(
                           fontSize: heightFactor * 20,
                           fontWeight: FontWeight.bold,
@@ -217,11 +227,13 @@ class TransactionSuccessModal extends StatelessWidget {
         const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BottomNavBar(user: user),
+              ),
+              (Route<dynamic> route) => false,
+            );
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

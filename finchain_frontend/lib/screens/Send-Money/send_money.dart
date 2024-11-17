@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 
 class SendMoney extends StatefulWidget {
   final User user;
+  final String balance;
 
-  const SendMoney({super.key, required this.user});
+  const SendMoney({super.key, required this.user, required this.balance});
 
   @override
   State<SendMoney> createState() => _SendMoneyState();
@@ -20,11 +21,11 @@ class _SendMoneyState extends State<SendMoney> {
   String _searchQuery = "";
 
   List<Contact> favouriteContacts = [
-    Contact(name: "Sakib", number: "+880 1836 254698"),
+    Contact(name: "Ankon", number: "01315206065"),
   ];
 
   List<Contact> allContacts = [
-    Contact(name: "Takia", number: "+880 1836 254698"),
+    Contact(name: "Fahim", number: "01701050147"),
     Contact(name: "Afifa", number: "+880 1836 254698"),
     Contact(name: "Bushra", number: "+880 1836 254698"),
     Contact(name: "Takia", number: "+880 1836 254698"),
@@ -184,8 +185,11 @@ class _SendMoneyState extends State<SendMoney> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        AmountToSend(contact: contact),
+                                    builder: (context) => AmountToSend(
+                                      contact: contact,
+                                      balance: widget.balance,
+                                      user: widget.user,
+                                    ),
                                   ),
                                 );
                               },
@@ -217,8 +221,11 @@ class _SendMoneyState extends State<SendMoney> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        AmountToSend(contact: contact),
+                                    builder: (context) => AmountToSend(
+                                      contact: contact,
+                                      balance: widget.balance,
+                                      user: widget.user,
+                                    ),
                                   ),
                                 );
                               },

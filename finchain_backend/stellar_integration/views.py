@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserProfileSerializer, StellarAccountSerializer, SendPaymentSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer,UserLoginSerializer
+from .serializers import UserProfileSerializer, StellarAccountSerializer, SendPaymentSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer,UserLoginSerializer,FundAccountSerializer
 from .models import StellarAccount, UserProfile,UserWallet
 from .utils import create_stellar_account, check_account_balance, send_payment, get_transaction_history, fund_account
 from django.contrib.auth import get_user_model ,authenticate
@@ -30,18 +30,38 @@ class StellarAccountViewSet(viewsets.ModelViewSet):
             return Response({'public_key': public_key, 'secret_seed': secret_seed})
         return Response({'error': 'Failed to create the account'}, status=400)
 
+    # @action(detail=False, methods=['post'])
+    # def fund_account(self, request):
+    #     public_key = request.data.get('public_key')
+        
+    #     if not public_key:
+    #         return Response({'error': 'Public key is required'}, status=400)
+        
+    #     try:
+    #         response = fund_account(public_key)
+    #         return Response({'status': 'success', 'response': response})
+    #     except Exception as e:
+    #         return Response({'error': str(e)}, status=400)
     @action(detail=False, methods=['post'])
     def fund_account(self, request):
-        public_key = request.data.get('public_key')
-        
-        if not public_key:
-            return Response({'error': 'Public key is required'}, status=400)
-        
+        # Use the serializer for validation
+        serializer = FundAccountSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        # Extract mobile number and find wallet
+        mobile_number = serializer.validated_data['mobile_number']
         try:
+            wallet = UserWallet.objects.filter(mobile_number=mobile_number).first()
+            if not wallet:
+                return Response({'error': 'Wallet not found for the given mobile number'}, status=404)
+
+            # Fund the Stellar account
+            public_key = wallet.wallet_address
             response = fund_account(public_key)
             return Response({'status': 'success', 'response': response})
         except Exception as e:
-            return Response({'error': str(e)}, status=400)
+            return Response({'error': str(e)},status=400)
 
     @action(detail=False, methods=['get'])
     def check_balance(self, request):

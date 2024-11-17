@@ -18,7 +18,7 @@ SECRET_KEY = "django-insecure-bl&py-c&ae)d88n9_%9p(mxzsvm^e235qttrq@5sz%tsp_z+0w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.x.x','127.0.0.1:8000','10.0.2.2','192.168.0.195','0.0.0.0', '192.168.0.165']
 AUTH_USER_MODEL = 'stellar_integration.CustomUser'
 
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'stellar_integration.apps.StellarIntegrationConfig',
     'rest_framework',
+    'corsheaders',
     # 'stellar_integration',
 ]
 
@@ -48,7 +49,26 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "stellar_payments.urls"
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

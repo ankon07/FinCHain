@@ -1,8 +1,10 @@
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
-import 'package:finchain_frontend/screens/Send-Money/reference_to_send.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
+import 'package:finchain_frontend/screens/Send-Money/transaction_failed_modal.dart';
+import 'package:finchain_frontend/screens/Send-Money/transaction_success_modal.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +27,7 @@ class AmountToSend extends StatefulWidget {
 class _AmountToSendState extends State<AmountToSend> {
   double _amount = 0.0;
   final TextEditingController _amountController = TextEditingController();
+  ApiService apiService = ApiService();
 
   void _onAmountChanged(String value) {
     setState(() {
@@ -32,17 +35,30 @@ class _AmountToSendState extends State<AmountToSend> {
     });
   }
 
-  void _navigateToNextScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReferenceToSend(
-          contact: widget.contact,
-          amount: _amount,
-          user: widget.user,
-        ),
-      ),
-    );
+  void _showTransactionStatusModal(BuildContext context) async {
+    try {
+      final fee = await apiService.sendPayment(
+        widget.contact.number,
+        _amountController.text,
+        "Payment",
+      );
+
+      showTransactionSuccessModal(
+        context: context,
+        user: widget.user,
+        contact: widget.contact,
+        amount: double.parse(_amountController.text),
+        fee: double.parse(fee),
+        reference: "Payment",
+        currentTimestamp: DateTime.now(),
+      );
+    } catch (e) {
+      showTransactionFailedModal(
+        context,
+        widget.user,
+        "Failed to Payment!",
+      );
+    }
   }
 
   @override
@@ -57,7 +73,7 @@ class _AmountToSendState extends State<AmountToSend> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const FinchainAppBar(
-        title: "Send Money",
+        title: "Payment",
         backButtonExists: true,
       ),
       body: Expanded(
@@ -70,21 +86,6 @@ class _AmountToSendState extends State<AmountToSend> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.all(widthFactor * 20),
-                      child: Text(
-                        "Receiver",
-                        style: TextStyle(
-                          fontSize: widthFactor * 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      color: Color(0xFFD2B48C),
-                      thickness: 2,
-                    ),
                     Padding(
                       padding: EdgeInsets.all(widthFactor * 20),
                       child: ContactCard(contact: widget.contact),
@@ -189,7 +190,7 @@ class _AmountToSendState extends State<AmountToSend> {
                         horizontal: widthFactor * 20,
                         vertical: widthFactor * 20),
                     child: ElevatedButton(
-                      onPressed: _navigateToNextScreen,
+                      onPressed: () => _showTransactionStatusModal(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
                         padding:

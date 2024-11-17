@@ -3,6 +3,7 @@ import 'package:finchain_frontend/screens/Dashboard/offers_section.dart';
 import 'package:finchain_frontend/screens/Dashboard/operations_preview.dart';
 import 'package:finchain_frontend/screens/Dashboard/top_home.dart';
 import 'package:finchain_frontend/models/User/user.dart';
+import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -17,11 +18,21 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   ThemeData theme = AppTheme.getTheme();
+  ApiService apiService = ApiService();
+
+  String _balance = "0.00";
 
   @override
   void initState() {
     super.initState();
-    fetchImageUrl();
+    getBalance();
+  }
+
+  Future<void> getBalance() async {
+    String balance = await apiService.fetchBalance();
+    setState(() {
+      _balance = balance;
+    });
   }
 
   Future<void> fetchImageUrl() async {}
@@ -70,7 +81,10 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           SizedBox(height: heightFactor * 10),
-          OperationsPreview(user: widget.user),
+          OperationsPreview(
+            user: widget.user,
+            balance: _balance,
+          ),
           SizedBox(height: heightFactor * 20),
           Center(
             child: Image.asset(
