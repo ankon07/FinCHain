@@ -60,9 +60,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
 
   Future<void> getTransactions() async {
     try {
-      print("hi");
       final data = await apiService.fetchTransactions();
-      print(data);
       setState(() {
         transactions = data;
       });

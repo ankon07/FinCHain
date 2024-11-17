@@ -119,23 +119,49 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> fetchTransactions() async {
-    final accessToken = await storage.read(key: 'access_token');
+    try {
+      // Retrieve the access token
+      final accessToken = await storage.read(key: 'access_token');
+      if (accessToken == null) {
+        throw Exception('Access token is missing!');
+      }
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/stellar_accounts/transaction_history/'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-      },
-    );
+      // Make the API request
+      final response = await http.get(
+        Uri.parse('$baseUrl/stellar_accounts/transaction_history/'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      List<Map<String, dynamic>> transactions = data['transactions'];
-      print(transactions);
-      return transactions;
-    } else {
-      throw Exception('Failed to fetch data!');
+      // Check for success response
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Ensure the transactions key exists and is a list
+        if (data is Map<String, dynamic> && data['transactions'] is List) {
+          // Filter valid transactions
+          List<Map<String, dynamic>> transactions =
+              List<Map<String, dynamic>>.from(
+            data['transactions'].where((transaction) {
+              return transaction['sender_mobile'] != null &&
+                  transaction['receiver_mobile'] != null &&
+                  double.tryParse(transaction['amount'].toString()) != 0;
+            }),
+          );
+          return transactions;
+        } else {
+          throw Exception(
+              'Unexpected response format: "transactions" key is missing or invalid!');
+        }
+      } else {
+        print('Failed response: ${response.body}');
+        throw Exception('Failed to fetch data! HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in fetchTransactions: $e');
+      throw Exception('Error fetching transactions: $e');
     }
   }
 
