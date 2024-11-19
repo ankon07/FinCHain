@@ -3,6 +3,7 @@ import 'package:finchain_frontend/screens/Add-Money/add_money.dart';
 import 'package:finchain_frontend/screens/Cash-Out/cash_out.dart';
 import 'package:finchain_frontend/screens/Payment/payment.dart';
 import 'package:finchain_frontend/screens/Send-Money/send_money.dart';
+import 'package:finchain_frontend/screens/Cross-Border/cross_border.dart';
 import 'package:flutter/material.dart';
 
 class DashboardNavigation {
@@ -51,6 +52,19 @@ class DashboardNavigation {
           user: user,
           balance: balance,
         ),
+      ),
+    );
+  }
+
+  void navigateToCrossBorder({
+    required BuildContext context,
+    required User user,
+    required String balance,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CrossBorder(user: user, balance: balance,),
       ),
     );
   }
