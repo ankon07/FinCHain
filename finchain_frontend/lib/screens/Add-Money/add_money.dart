@@ -1,3 +1,4 @@
+import 'package:finchain_frontend/modules/coming_soon.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/screens/Add-Money/add_money_card.dart';
@@ -97,7 +98,7 @@ class _AddMoneyState extends State<AddMoney> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  BankToFinchain(user: widget.user),
+                                  ComingSoon(user: widget.user),
                             ),
                           );
                         },

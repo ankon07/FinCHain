@@ -1,3 +1,4 @@
+import 'package:finchain_frontend/modules/coming_soon.dart';
 import 'package:finchain_frontend/screens/Dashboard/dashboard.dart';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/screens/Notifications/notifications.dart';
@@ -29,7 +30,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     final appScreens = [
       Dashboard(user: widget.user),
-      const Center(child: Text("QR")),
+      ComingSoon(
+        user: widget.user,
+        backButtonExists: false,
+      ),
       Notifications(user: widget.user),
       UserProfile(user: widget.user),
     ];

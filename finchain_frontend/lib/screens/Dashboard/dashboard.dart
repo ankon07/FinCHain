@@ -6,6 +6,7 @@ import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:finchain_frontend/modules/loading_overlay.dart';
 
 class Dashboard extends StatefulWidget {
   final User user;
@@ -19,6 +20,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   ThemeData theme = AppTheme.getTheme();
   ApiService apiService = ApiService();
+  bool isLoading = false;
 
   String _balance = "0.00";
 
@@ -28,11 +30,24 @@ class _DashboardState extends State<Dashboard> {
     getBalance();
   }
 
-  Future<void> getBalance() async {
-    String balance = await apiService.fetchBalance();
+  void _setLoading(bool value) {
     setState(() {
-      _balance = balance;
+      isLoading = value;
     });
+  }
+
+  Future<void> getBalance() async {
+    _setLoading(true);
+    try {
+      String balance = await apiService.fetchBalance();
+      setState(() {
+        _balance = balance;
+      });
+    } catch (e) {
+      debugPrint('Error fetching balance: $e');
+    } finally {
+      _setLoading(false);
+    }
   }
 
   Future<void> fetchImageUrl() async {}
@@ -47,68 +62,42 @@ class _DashboardState extends State<Dashboard> {
     double widthFactor = screenWidth / 428;
     double heightFactor = screenHeight / 926;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          TopHome(user: widget.user),
-          SizedBox(height: heightFactor * 10),
-          Container(
-            padding: EdgeInsets.only(
-              left: widthFactor * 20,
-              right: widthFactor * 20,
-              top: widthFactor * 20,
+    return LoadingOverlay(
+      isLoading: isLoading,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            TopHome(user: widget.user),
+            SizedBox(height: heightFactor * 10),
+            OperationsPreview(
+              user: widget.user,
+              balance: _balance,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Operations',
-                  style: TextStyle(
-                    fontSize: 24 * widthFactor,
-                    fontWeight: FontWeight.w900,
-                    color: theme.primaryColor,
-                  ),
-                ),
-                Text(
-                  'See All',
-                  style: TextStyle(
-                    fontSize: 11 * widthFactor,
-                    fontWeight: FontWeight.w500,
-                    color: theme.secondaryHeaderColor,
-                  ),
-                ),
-              ],
+            SizedBox(height: heightFactor * 20),
+            Center(
+              child: Image.asset(
+                'assets/images/ad_three.png',
+                width: widthFactor * 410,
+                height: heightFactor * 104.98,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          SizedBox(height: heightFactor * 10),
-          OperationsPreview(
-            user: widget.user,
-            balance: _balance,
-          ),
-          SizedBox(height: heightFactor * 20),
-          Center(
-            child: Image.asset(
-              'assets/images/ad_one.png',
-              width: widthFactor * 410,
-              height: heightFactor * 104.98,
-              fit: BoxFit.cover,
+            SizedBox(height: heightFactor * 20),
+            OffersSection(user: widget.user),
+            SizedBox(height: heightFactor * 20),
+            Agents(user: widget.user),
+            SizedBox(height: heightFactor * 20),
+            Center(
+              child: Image.asset(
+                'assets/images/ad_two.png',
+                width: widthFactor * 410,
+                height: heightFactor * 104.98,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          SizedBox(height: heightFactor * 20),
-          OffersSection(user: widget.user),
-          SizedBox(height: heightFactor * 20),
-          Agents(user: widget.user),
-          SizedBox(height: heightFactor * 20),
-          Center(
-            child: Image.asset(
-              'assets/images/ad_two.png',
-              width: widthFactor * 410,
-              height: heightFactor * 104.98,
-              fit: BoxFit.cover,
-            ),
-          ),
-          SizedBox(height: heightFactor * 20),
-        ],
+            SizedBox(height: heightFactor * 20),
+          ],
+        ),
       ),
     );
   }

@@ -48,7 +48,7 @@ class _ConfirmAddMoneyState extends State<ConfirmAddMoney> {
         user: widget.user,
         contact: widget.receiver,
         amount: widget.amount,
-        fee: 100.00,
+        fee: 0.00,
         reference: _refController.text,
         currentTimestamp: DateTime.now(),
       );

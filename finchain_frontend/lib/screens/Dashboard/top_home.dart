@@ -3,6 +3,7 @@ import 'package:finchain_frontend/screens/Transaction-History/transaction_histor
 import 'package:finchain_frontend/utils/api_service.dart';
 import 'package:finchain_frontend/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:finchain_frontend/modules/loading_overlay.dart';
 
 class TopHome extends StatefulWidget {
   final User user;
@@ -20,6 +21,7 @@ class _TopHomeState extends State<TopHome> {
   bool isBalanceShowing = false;
   double _balanceOpacity = 0.0;
   bool isHistoryShowing = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -29,15 +31,28 @@ class _TopHomeState extends State<TopHome> {
     fetchImageUrl();
   }
 
+  void _setLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
+
   Future<void> fetchImageUrl() async {}
 
   Future<void> _logout() async {}
 
   Future<void> getBalance() async {
-    String balance = await apiService.fetchBalance();
-    setState(() {
-      _balance = balance;
-    });
+    _setLoading(true);
+    try {
+      String balance = await apiService.fetchBalance();
+      setState(() {
+        _balance = balance;
+      });
+    } catch (e) {
+      debugPrint('Error fetching balance: $e');
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void _toggleBalanceVisibility() {
@@ -200,34 +215,37 @@ class _TopHomeState extends State<TopHome> {
                 padding: EdgeInsets.only(
                     left: widthFactor * 20, bottom: widthFactor * 20),
                 width: screenWidth * 0.9,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: _balanceOpacity,
-                  curve: Curves.easeInOut,
-                  child: isBalanceShowing
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Your Balance",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: widthFactor * 20,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              "\$ $_balance",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: widthFactor * 24,
-                                fontWeight: FontWeight.w700,
+                child: LoadingOverlay(
+                  isLoading: isLoading,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: _balanceOpacity,
+                    curve: Curves.easeInOut,
+                    child: isBalanceShowing
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Your Balance",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: widthFactor * 20,
+                                    fontWeight: FontWeight.w500),
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                          ],
-                        )
-                      : null,
+                              const SizedBox(height: 5),
+                              Text(
+                                "\$ $_balance",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: widthFactor * 24,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                            ],
+                          )
+                        : null,
+                  ),
                 ),
               ),
             ],

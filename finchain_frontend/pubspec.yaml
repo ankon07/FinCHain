@@ -41,6 +41,8 @@ dependencies:
   http: ^1.2.2
   flutter_secure_storage: ^9.2.2
   intl: ^0.19.0
+  loading_animation_widget: ^1.2.0+4
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -56,9 +58,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/finchain.png"
-  adaptive_icon_background: "#006666"
-  adaptive_icon_foreground: "assets/images/finchain.png"
+  image_path: "assets/images/app_logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/app_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,6 +75,9 @@ flutter:
     - assets/icons/add_money.svg
     - assets/icons/bank_transfer.svg
     - assets/icons/payment.svg
+    - assets/icons/cross_border.svg
+    - assets/icons/bills.svg
+    - assets/icons/donation.svg
     - assets/icons/wallet.svg
     - assets/icons/transaction_history.svg
     - assets/icons/offers.svg
@@ -84,6 +89,8 @@ flutter:
     - assets/icons/fail.svg
     - assets/images/ad_one.png
     - assets/images/ad_two.png
+    - assets/images/ad_three.png
+    - assets/images/app_logo.png
     - assets/images/finchain.png
     - assets/images/user.jpg
   fonts:

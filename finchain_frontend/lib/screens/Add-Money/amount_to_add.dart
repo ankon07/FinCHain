@@ -2,6 +2,7 @@ import 'package:finchain_frontend/models/Account/account.dart';
 import 'package:finchain_frontend/models/Contact/contact.dart';
 import 'package:finchain_frontend/models/User/user.dart';
 import 'package:finchain_frontend/modules/finchain_appbar.dart';
+import 'package:finchain_frontend/modules/loading_overlay.dart';
 import 'package:finchain_frontend/screens/Add-Money/confirm_add_money.dart';
 import 'package:finchain_frontend/screens/Send-Money/contact_card.dart';
 import 'package:finchain_frontend/utils/theme.dart';
@@ -29,6 +30,7 @@ class _AmountToAddState extends State<AmountToAdd> {
   ThemeData theme = AppTheme.getTheme();
   final TextEditingController _amountController = TextEditingController();
   final double _minimumAmount = 50;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -41,21 +43,35 @@ class _AmountToAddState extends State<AmountToAdd> {
     });
   }
 
+  void _setLoading(bool value) {
+    setState(() {
+      _isLoading = value;
+    });
+  }
+
   void _selectAmount(double amount) {
     setState(() {
       _amountController.text = amount.toString();
     });
   }
 
-  void _onNextButtonPressed() {
+  Future<void> _onNextButtonPressed() async {
     double? amount = double.tryParse(_amountController.text);
-    if (amount! < _minimumAmount) {
+    if (amount == null || amount < _minimumAmount) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Provide a value over or equal to minimum value.'),
         ),
       );
-    } else {
+      return;
+    }
+
+    _setLoading(true);
+    try {
+      // Simulate API call delay
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -68,6 +84,15 @@ class _AmountToAddState extends State<AmountToAdd> {
           ),
         ),
       );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      if (mounted) {
+        _setLoading(false);
+      }
     }
   }
 
@@ -81,7 +106,9 @@ class _AmountToAddState extends State<AmountToAdd> {
         title: "Bank To Finchain",
         backButtonExists: true,
       ),
-      body: Expanded(
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        message: "Processing amount...",
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: widthFactor * 20),
@@ -194,107 +221,85 @@ class _AmountToAddState extends State<AmountToAdd> {
                                       _amountController.text = '0.00';
                                       _amountController.selection =
                                           TextSelection.fromPosition(
-                                              TextPosition(
-                                        offset: _amountController.text.length,
-                                      ));
+                                        TextPosition(
+                                          offset: _amountController.text.length,
+                                        ),
+                                      );
                                     }
                                   },
                                 ),
                               ),
-                              SizedBox(height: heightFactor * 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Minimum Amount: ',
-                                    style: TextStyle(
-                                      fontSize: widthFactor * 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: theme.primaryColor,
-                                    ),
-                                  ),
-                                  SizedBox(height: heightFactor * 10),
-                                  Text(
-                                    '৳ $_minimumAmount',
-                                    style: TextStyle(
-                                      fontSize: widthFactor * 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: theme.secondaryHeaderColor,
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                "BDT",
+                                style: TextStyle(
+                                  fontSize: heightFactor * 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: theme.secondaryHeaderColor,
+                                ),
                               ),
                             ],
                           ),
-                          const Spacer(),
                         ],
+                      ),
+                      SizedBox(height: heightFactor * 30),
+                      Text(
+                        "Minimum amount: ৳${_minimumAmount.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          color: theme.secondaryHeaderColor,
+                          fontSize: heightFactor * 14,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: heightFactor * 50),
-                Center(
+                SizedBox(height: heightFactor * 30),
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton(
+                    onPressed: _onNextButtonPressed,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: widthFactor * 80,
-                        vertical: heightFactor * 15,
-                      ),
                       backgroundColor: theme.primaryColor,
+                      padding: EdgeInsets.symmetric(vertical: heightFactor * 15),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(widthFactor * 30),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    onPressed: _onNextButtonPressed,
-                    child: const Text(
-                      'NEXT',
+                    child: Text(
+                      "Next",
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                        fontSize: heightFactor * 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: heightFactor * 20),
               ],
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: Container(
-        width: double.infinity,
-        height: heightFactor * 40,
-        color: theme.primaryColor,
       ),
     );
   }
 
   Widget _amountButton(double amount) {
     return ElevatedButton(
+      onPressed: () => _selectAmount(amount),
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         backgroundColor: Colors.white,
-        minimumSize: const Size(60, 30),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: double.tryParse(_amountController.text) == amount
-                ? theme.primaryColor
-                : theme.secondaryHeaderColor,
-            width: 1,
-          ),
+          side: BorderSide(color: Colors.grey.shade300),
         ),
-        elevation: 0,
+        minimumSize: const Size(80, 35),
       ),
-      onPressed: () => _selectAmount(amount),
       child: Text(
-        '৳ ${amount.toInt()}',
-        style: TextStyle(
-          color: double.tryParse(_amountController.text) == amount
-              ? theme.primaryColor
-              : theme.secondaryHeaderColor,
-          fontSize: 8,
-          fontWeight: FontWeight.w600,
+        amount.toStringAsFixed(0),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
         ),
       ),
     );

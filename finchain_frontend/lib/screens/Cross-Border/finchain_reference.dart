@@ -52,7 +52,7 @@ class _FinchainReferenceState extends State<FinchainReference> {
     }
 
     try {
-      final fee = await apiService.sendPayment(
+      await apiService.sendPayment(
         widget.receiverNumber,
         widget.amount.toString(),
         _referenceController.text,
@@ -67,7 +67,7 @@ class _FinchainReferenceState extends State<FinchainReference> {
             number: widget.receiverNumber,
             name: ''), // Creating a Contact object with receiver number
         amount: widget.amount,
-        fee: double.parse(fee),
+        fee: 5.00,
         reference: _referenceController.text,
         currentTimestamp: DateTime.now(),
       );

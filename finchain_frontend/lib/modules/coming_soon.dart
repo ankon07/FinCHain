@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 class ComingSoon extends StatelessWidget {
   final User user;
   final String? title;
+  final bool? backButtonExists;
 
   const ComingSoon({
     super.key,
     required this.user,
     this.title,
+    this.backButtonExists,
   });
 
   @override
@@ -24,7 +26,7 @@ class ComingSoon extends StatelessWidget {
     return Scaffold(
       appBar: FinchainAppBar(
         title: title ?? "Coming Soon",
-        backButtonExists: true,
+        backButtonExists: backButtonExists ?? true,
       ),
       body: Container(
         width: double.infinity,

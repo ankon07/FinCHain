@@ -50,4 +50,30 @@ class Utils {
     String formattedNumber = number.toStringAsFixed(2);
     return "$formattedNumber BDT";
   }
+
+  static Map<String, String> splitName(String fullName) {
+    List<String> nameParts = fullName.trim().split(' ');
+    
+    if (nameParts.isEmpty) {
+      return {
+        'first_name': '',
+        'last_name': '',
+      };
+    }
+    
+    if (nameParts.length == 1) {
+      return {
+        'first_name': nameParts[0],
+        'last_name': '',
+      };
+    }
+    
+    String firstName = nameParts[0];
+    String lastName = nameParts.sublist(1).join(' ');
+    
+    return {
+      'first_name': firstName,
+      'last_name': lastName,
+    };
+  }
 }

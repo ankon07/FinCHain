@@ -49,7 +49,7 @@ class _OtpConfirmationAMState extends State<OtpConfirmationAM> {
         user: widget.user,
         contact: widget.receiver,
         amount: widget.amount,
-        fee: 100.00,
+        fee: 0.00,
         reference: widget.reference,
         currentTimestamp: widget.currentTimestamp,
       );

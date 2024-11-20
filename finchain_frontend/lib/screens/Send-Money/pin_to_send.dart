@@ -43,7 +43,7 @@ class _PinToSendState extends State<PinToSend> {
         user: widget.user,
         contact: widget.contact,
         amount: widget.amount,
-        fee: 5.00,
+        fee: 14.00,
         reference: widget.reference,
         currentTimestamp: DateTime.now(),
       );
